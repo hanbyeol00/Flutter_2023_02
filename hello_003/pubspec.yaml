@@ -1,4 +1,4 @@
-name: hello_002
+name: hello_003
 description: A new Flutter project.
 
 publish_to: "none"
@@ -22,3 +22,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # flutter.assets : image, icon 등의 자원 설정
+  assets:
+    # - images/image_1.jpg
+    - images/
