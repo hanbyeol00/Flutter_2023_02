@@ -4,6 +4,8 @@
 .dart_tool/
 .packages
 build/
+test/
+widget_test.*
 # If you're building an application, you may want to check-in your pubspec.lock
 pubspec.lock
 

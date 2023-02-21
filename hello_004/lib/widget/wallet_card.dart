@@ -18,6 +18,7 @@ class WalletCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: isInverted ? Colors.white : _blackColor,
         borderRadius: BorderRadius.circular(25),
