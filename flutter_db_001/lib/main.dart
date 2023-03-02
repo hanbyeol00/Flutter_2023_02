@@ -82,8 +82,10 @@ class _MainPageState extends State<MainPage> {
                 context,
                 MaterialPageRoute(builder: (context) => const DogInput()),
               );
-              await DogDBService().insert(result);
-              setState(() {});
+              if (result != null) {
+                await DogDBService().insert(result);
+                setState(() {});
+              }
             },
             child: const Icon(Icons.add),
           ),
