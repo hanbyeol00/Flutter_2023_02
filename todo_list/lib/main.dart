@@ -79,6 +79,7 @@ class _TodoHomePageState extends State<TodoHomePage> {
 
   Future<dynamic> todoInputBox(BuildContext context) {
     return showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (_) {
         return AlertDialog(
