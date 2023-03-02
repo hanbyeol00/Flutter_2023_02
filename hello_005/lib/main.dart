@@ -32,10 +32,89 @@ class App extends StatelessWidget {
     /**
      * flutter 로 만들어지는 화면을 가장 바깥쪽 box 에
      * MaterialApp() 컨테이너 Widget 으로 시작해야 한다
+     * MaterialApp 의 home 변수에 이후의 다른 Widget 을 포함한다
+     * 
+     * MaterialApp 의 theme 를 적용하기 위하여
+     * Scaffold() widget 으로 child 를 감싸준다
      */
     return MaterialApp(
-      home: const Text("반갑습니다"),
-      theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const HomePage());
+  }
+}
+
+/*
+ * StatefulWidget
+ * 변화되는 데이터, 변화되는 변수 등을
+ * 화면에 표현하기 위한 클래스
+ * 이 클래스는 반드시 State<변수> 클래스를 동반한다
+ * StatefulWidget 은 데이터나 변수가 변화되는 것을 감시하고
+ * State 클래스에게 통보하는 역활을 수행한다
+ */
+class HomePage extends StatefulWidget {
+  const HomePage({
+    super.key,
+  });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+/*
+ * State 클래스는 변화되는 데이터, 변수 값을 화면에 그리는 역활
+ * State 클래스에서 선언하는 모든 변수는
+ * 변수 자체가 State 성질을 갖는다
+ * 
+ * 클래스, 변수, 함수 이름 앞네 underBar(_) 를 붙이면
+ * 모든 접근자가 private 이 된다
+ * 즉 다른곳에서는 접근할 수 없고 현재 scope 내에서만
+ * 접근 가능하도록 만드는 것
+ */
+class _HomePageState extends State<HomePage> {
+  int _counter = 0;
+  void _counterUp() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: _counterUp,
+        child: const Icon(Icons.add),
+      ),
+      appBar: AppBar(
+        title: const Text("My Flutter App"),
+      ),
+      body: Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text("반갑습니다"),
+          Text(
+            "카운터 : $_counter",
+            style: const TextStyle(
+              fontSize: 30,
+              color: Colors.blue,
+            ),
+          ),
+          const Text("우리나라 만세"),
+          const Text("Korea"),
+          const Text("Hello Korea"),
+          const Text(
+            "Republic of Korea",
+            style: TextStyle(
+              fontSize: 30,
+              color: Colors.amber,
+            ),
+          ),
+        ],
+      )),
     );
   }
 }
