@@ -1,16 +1,19 @@
 # flutter_040_naver_api
 
-A new Flutter project.
+- naver OpenApi 를 사용하여 영화 검색 App 만들기
+- `/lib/config/naver_api.dart` 파일에 NaverAPI 의 접속 정보를 설정
+- `.gitignore` 파일에 `naver_api.*` 를 등록하여 `github` 에 업로드 금지 설정
 
-## Getting Started
+## flutter 에서 외부 서버에 접속하기 위하여
 
-This project is a starting point for a Flutter application.
+- dependencies 설정
 
-A few resources to get you started if this is your first Flutter project:
+```
+flutter pub add http
+flutter pub add flutter_html
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## naver API 에서 요구하는 안드로이드 패키지 설정
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `flutter pub add change_app_package_name`
+- `flutter pub run change_app_package_name:main com.han.naver`
