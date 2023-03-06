@@ -1,0 +1,6 @@
+# Linguist vendoring settings
+* linguist-vendored=true
+
+# Linguist language statistics settings
+*.dart linguist-vendored=false
+* linguist-language=Dart
