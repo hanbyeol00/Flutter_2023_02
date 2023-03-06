@@ -1,16 +1,8 @@
-# flutter_drawer_001
+# flutter Navigator
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- flutter 의 Navigator 는 하나의 stack type 의 데이터 구조이다
+- 현재 보고 있는 화면은 Navigator stack 의 최 상단에 있는 context 이다
+- 만약 새로운 페이지(화면)을 보고자 하면 Navigator.push()함수를 사용하여  
+  새로운 페이지를 stack 에 집어 넣는다
+- 현재 보고 있는 화면 이전 페이지(화면)으로 돌아가고자 하면 Navigator.pop()  
+  함수를 사용하여 돌아간다
