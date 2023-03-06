@@ -17,3 +17,37 @@ flutter pub add flutter_html
 
 - `flutter pub add change_app_package_name`
 - `flutter pub run change_app_package_name:main com.han.naver`
+
+## android 설벙 확인 및 권한 부여
+
+- `/android/app/src/main/kotlin` 폴더에서 `MainActivity.kt` 파일을 열고  
+  package 가 `com.han.naver` 로 변경되었는지 확인
+- `/android/app/src/main/AndroidManifest.xml` 파일을 열고 package 확인
+- 그리고 다음 권한 항목을 `<aplication` 속성 위에 추가
+
+```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application
+```
+
+## dradle 빌드 환경 설정
+
+- `android/app/build.gradle` 파일 열기
+- `defaultConfig` 항목 찾기 다음 부분 변경
+
+```
+    minSdkVersion 25 // flutter.minSdkVersion
+    targetSdkVersion 33 // flutter.targetSdkVersion
+```
+
+- `buildTypes` 항목을 찾아 다음과 같은지 확인
+
+```
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+        }
+    }
+```
