@@ -2,5 +2,5 @@
 * linguist-vendored=true
 
 # Linguist language statistics settings
-*.dart linguist-vendored=true
-* linguist-language=Other
+*.dart linguist-vendored=false
+* linguist-language=Dart

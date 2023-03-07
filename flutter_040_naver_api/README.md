@@ -23,7 +23,7 @@ flutter pub add flutter_html
 - `/android/app/src/main/kotlin` 폴더에서 `MainActivity.kt` 파일을 열고  
   package 가 `com.han.naver` 로 변경되었는지 확인
 - `/android/app/src/main/AndroidManifest.xml` 파일을 열고 package 확인
-- 그리고 다음 권한 항목을 `<aplication` 속성 위에 추가
+- 그리고 다음 권한 항목을 `<application` 속성 위에 추가
 
 ```xml
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -51,3 +51,25 @@ flutter pub add flutter_html
         }
     }
 ```
+
+## 영화 리스트 검색 후 naver 영화 자세히 보기로 jump
+
+- 외부 URL 을 내장 브라우저로 열기
+- `flutter pub add url_launcher`
+- `AndroidManifest.xml` 파일에 다음 항목 추가
+
+```xml
+    <queries>
+        <intent>
+            <action android:name = "android.intent.action.VIEW"/>
+            <data android:schema = "https" />
+        </intent>
+    </queries>
+
+    <!-- 여기 위에 설정 -->
+    <application
+```
+
+## Android 기기에서 외부 브라우저를 열거나 WebView 위젯으로 열때 오류 해결
+
+- `웹 페이지를 사용할 수 없음` `ERR_CLEARTEXT_NOT_PERMITTED`
