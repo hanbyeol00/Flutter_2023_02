@@ -1,7 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_member/screen/firebase_join.dart';
+import 'package:flutter_member/screen/firebase_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const App());
 }
 
@@ -11,6 +17,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Member",
       theme: ThemeData(
         primaryColor: Colors.blue,
@@ -38,9 +45,12 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 class _HomePageState extends State<HomePage> {
   GoogleSignInAccount? _currentUser;
 
+  late User? _authUser;
+
   @override
   void initState() {
     super.initState();
+    _authUser = FirebaseAuth.instance.currentUser;
     /**
      * google login 이 되면 google 로 부터 이벤트가 전달될텐데
      * 이벤트를 기다리다가 user 정보가 오면 _currentUser 에
@@ -94,27 +104,70 @@ class _HomePageState extends State<HomePage> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const Text(
-            "로그인",
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w600,
-              color: Colors.blue,
-            ),
+          _authUser == null
+              ? const Text(
+                  "로그인",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blue,
+                  ),
+                )
+              : const Text(
+                  "로그인 되어있음",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blue,
+                  ),
+                ),
+          Container(
+            margin: const EdgeInsets.all(10),
+            child: _authUser != null
+                ? Column(
+                    children: [
+                      _authUser!.emailVerified
+                          ? Text("User Name : ${_authUser!.email}")
+                          : const Text("이메일 인증이 되어 있지 않음"),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            await FirebaseAuth.instance.signOut();
+                            _authUser = FirebaseAuth.instance.currentUser;
+                            setState(() {});
+                          },
+                          child: const Text("로그아웃"))
+                    ],
+                  )
+                : Column(
+                    children: [
+                      // 파사드 패턴, 끌어올리기 패턴
+                      LoginPage(loginSubmit: loginSubmit),
+                      googleLogin(),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const JoinPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "이메일로 회원가입",
+                          style: TextStyle(color: Colors.blue, fontSize: 15),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
-          loginForm(),
           const SizedBox(
             height: 20,
-          ),
-          googleLogin(),
-          const SizedBox(
-            height: 20,
-          ),
-          GestureDetector(
-            child: const Text(
-              "회원가입",
-              style: TextStyle(color: Colors.blue, fontSize: 15),
-            ),
           ),
           /**
            * Flexible
@@ -133,40 +186,35 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Form loginForm() {
-    return Form(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            const Image(
-              width: 100,
-              height: 100,
-              image: AssetImage("images/user.png"),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            inputBox(
-              keyboardType: TextInputType.emailAddress,
-              labelText: "이메일",
-              errorMsg: "이메일을 입력해 주세요",
-              onChanged: (value) {},
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            inputBox(
-              keyboardType: TextInputType.text,
-              labelText: "비밀번호",
-              errorMsg: "비밀번호를 입력하세요",
-              obscureText: true,
-              onChanged: (value) {},
-            ),
-          ],
+  void loginSubmit({required email, required password}) async {
+    FocusScope.of(context).requestFocus(FocusNode());
+    try {
+      // firebase_auth 에서 제공하는 API 클래스
+      UserCredential resultAuth =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      _authUser = resultAuth.user;
+      setState(() {});
+    } on FirebaseException catch (e) {
+      String message = "";
+      if (e.code == "user-not-fount") {
+        message = "사용자가 존재하지 않습니다";
+      } else if (e.code == "wrong=password") {
+        message = "비밀번호가 맞지 않습니다";
+      } else if (e.code == "invalid-email") {
+        message = "이메일을 확인해 주세요";
+      } else {
+        message = "알 수 없는 오류발생";
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.deepOrange,
         ),
-      ),
-    );
+      );
+    }
   }
 
   GestureDetector googleLogin() {
@@ -200,30 +248,6 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         ],
-      ),
-    );
-  }
-
-  TextFormField inputBox({
-    keyboardType = TextInputType.text,
-    String labelText = "값을 입력하세요",
-    String errorMsg = "값을 입력하세요",
-    bool obscureText = false,
-    Function(dynamic value)? onChanged,
-  }) {
-    return TextFormField(
-      obscureText: obscureText,
-      onChanged: onChanged,
-      keyboardType: keyboardType,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return errorMsg;
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(),
-        labelText: labelText,
       ),
     );
   }
