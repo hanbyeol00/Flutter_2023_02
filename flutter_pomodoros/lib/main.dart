@@ -5,6 +5,13 @@ void main() {
   runApp(const MyApp());
 }
 
+const List<String> list = <String>[
+  'One',
+  'Two',
+  'Three',
+  'Four',
+];
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -61,6 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  String dropdownValue = list.first;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(80),
-              child: Time(context),
+              child: setTimerButton(context, list, dropdownValue),
+              // child: Time(context),
             ),
             IconButton(
               icon: _timerRun
@@ -96,6 +106,79 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  ElevatedButton setTimerButton(BuildContext context, list, dropdownValue) {
+    int minutes = 0;
+    int seconds = 0;
+    return ElevatedButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              actions: [
+                settingTime(dropdownValue, list),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(onPressed: () {}, child: const Text("확인")),
+                    ElevatedButton(onPressed: () {}, child: const Text("취소"))
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+        overlayColor: MaterialStateProperty.all(Colors.transparent),
+        elevation: MaterialStateProperty.all(0),
+      ),
+      child: Time(context),
+    );
+  }
+
+  Row settingTime(dropdownValue, list) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        const Text("분"),
+        Padding(
+          padding: const EdgeInsets.all(21),
+          child: DropdownButton<String>(
+            value: dropdownValue,
+            onChanged: (String? value) {
+              setState(() {
+                dropdownValue = value!;
+              });
+            },
+            items: list.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ),
+        const Text("초"),
+        DropdownButton<String>(
+          value: dropdownValue,
+          onChanged: (String? value) {
+            setState(() {
+              dropdownValue = value!;
+            });
+          },
+          items: list.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
