@@ -28,70 +28,79 @@ class _OmokBoardState extends State<OmokBoard> {
 
   int currentPlayer = 1;
   bool gameOver = false;
+  bool gameOverline = false;
 
   void resetBoard() {
     setState(() {
       board = List.generate(15, (_) => List.filled(15, 0));
       currentPlayer = 1;
       gameOver = false;
+      gameOverline = false;
     });
   }
 
   bool checkWin(int row, int col) {
-    // Check horizontal
-    int count = 1;
-    for (int i = col - 1; i >= 0 && board[row][i] == currentPlayer; i--) {
-      count++;
-    }
-    for (int i = col + 1; i < 15 && board[row][i] == currentPlayer; i++) {
-      count++;
-    }
-    if (count >= 5) return true;
+    final directions = [
+      [1, 0],
+      [0, 1],
+      [1, 1],
+      [1, -1],
+    ];
 
-    // Check vertical
-    count = 1;
-    for (int i = row - 1; i >= 0 && board[i][col] == currentPlayer; i--) {
-      count++;
-    }
-    for (int i = row + 1; i < 15 && board[i][col] == currentPlayer; i++) {
-      count++;
-    }
-    if (count >= 5) return true;
+    for (final direction in directions) {
+      int count = 1;
+      int dx = direction[0];
+      int dy = direction[1];
 
-    // Check diagonal (top-left to bottom-right)
-    count = 1;
-    for (int i = row - 1, j = col - 1;
-        i >= 0 && j >= 0 && board[i][j] == currentPlayer;
-        i--, j--) {
-      count++;
-    }
-    for (int i = row + 1, j = col + 1;
-        i < 15 && j < 15 && board[i][j] == currentPlayer;
-        i++, j++) {
-      count++;
-    }
-    if (count >= 5) return true;
+      for (int i = 1; i < 5; i++) {
+        int r = row + i * dy;
+        int c = col + i * dx;
 
-    // Check diagonal (bottom-left to top-right)
-    count = 1;
-    for (int i = row + 1, j = col - 1;
-        i < 15 && j >= 0 && board[i][j] == currentPlayer;
-        i++, j--) {
-      count++;
+        if (r < 0 || r >= 15 || c < 0 || c >= 15) {
+          break;
+        }
+
+        if (board[r][c] == currentPlayer) {
+          count++;
+        } else {
+          break;
+        }
+      }
+
+      dx = -dx;
+      dy = -dy;
+      for (int i = 1; i < 5; i++) {
+        int r = row + i * dy;
+        int c = col + i * dx;
+
+        if (r < 0 || r >= 15 || c < 0 || c >= 15) {
+          break;
+        }
+
+        if (board[r][c] == currentPlayer) {
+          count++;
+        } else {
+          break;
+        }
+      }
+
+      if (count == 5) {
+        return true;
+      } else if (count > 5) {
+        gameOverline = true;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('장목! 다른 곳에 두세요.'),
+          ),
+        );
+      }
     }
-    for (int i = row - 1, j = col + 1;
-        i >= 0 && j < 15 && board[i][j] == currentPlayer;
-        i--, j++) {
-      count++;
-    }
-    if (count >= 5) return true;
 
     return false;
   }
 
-  void placeStone(int row, int col) {
+  void placeStone(int row, int col) async {
     if (gameOver || board[row][col] != 0) return;
-    if (board[row][col] != 0) return; // Position is already occupied
 
     setState(() {
       board[row][col] = currentPlayer;
@@ -99,13 +108,18 @@ class _OmokBoardState extends State<OmokBoard> {
       if (checkWin(row, col)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('${currentPlayer == 1 ? "Black" : "White"} player wins!'),
+            content: Text('${currentPlayer == 1 ? "검정" : "흰색"} 플레이어 승리!'),
+          ),
+        );
+        gameOver = true;
+      } else if (board.every((row) => row.every((stone) => stone != 0))) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("무승부?"),
           ),
         );
         gameOver = true;
       } else {
-        // Switch to the next player
         currentPlayer = currentPlayer == 1 ? 2 : 1;
       }
     });
@@ -157,7 +171,7 @@ class _OmokBoardState extends State<OmokBoard> {
           ),
           ElevatedButton(
             onPressed: resetBoard,
-            child: const Text('Reset'),
+            child: const Text('리셋'),
           ),
         ],
       ),
