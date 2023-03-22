@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:flutter_talkwise/screen/Home.dart';
+import 'package:flutter_talkwise/ui_modles/Home_View_model.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => HomeViewModel(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,103 +17,119 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      home: MyHomePage(),
+      initialRoute: "/",
+      routes: {
+        "/": (context) => const NavPage(body: Home()),
+        // "/category": (context) => const NavPage(body: ImagePage()),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class NavPage extends StatefulWidget {
+  const NavPage({
+    super.key,
+    required this.body,
+  });
+  final Widget body;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<NavPage> createState() => _NavPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _initSpeech();
-  }
-
-  /// This has to happen only once per app
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  /// Manually stop the active speech recognition session
-  /// Note that there are also timeouts that each platform enforces
-  /// and the SpeechToText plugin supports setting timeouts on the
-  /// listen method.
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-    });
-  }
-
+class _NavPageState extends State<NavPage> {
   @override
   Widget build(BuildContext context) {
+    var viewModel = context.watch<HomeViewModel>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Speech Demo'),
+        title: const Text('Flutter Talkwise'),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: widget.body,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: const Text(
-                'Recognized words:',
-                style: TextStyle(fontSize: 20.0),
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
+              child: Text('북마크'),
             ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  // If listening is active show the recognized words
-                  _speechToText.isListening
-                      ? _lastWords
-                      // If listening isn't active but could be tell the user
-                      // how to start it, otherwise indicate that speech
-                      // recognition is not yet ready or not supported on
-                      // the target device
-                      : _speechEnabled
-                          ? 'Tap the microphone to start listening...'
-                          : 'Speech not available',
-                ),
+            ListTile(
+              title: Text(
+                '질문하기',
+                style: viewModel.selectedIndex == 0
+                    ? const TextStyle(fontWeight: FontWeight.bold)
+                    : null,
               ),
+              selected: viewModel.selectedIndex == 0,
+              onTap: () {
+                viewModel.onSelectedChanged(0);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  "/",
+                  (route) => false,
+                );
+              },
+            ),
+            ExpansionTile(
+              title: Text(
+                '카테고리',
+                style: viewModel.selectedIndex >= 1
+                    ? const TextStyle(fontWeight: FontWeight.bold)
+                    : null,
+              ),
+              children: <Widget>[
+                ListTile(
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      'All',
+                      style: viewModel.selectedIndex == 1
+                          ? const TextStyle(fontWeight: FontWeight.bold)
+                          : null,
+                    ),
+                  ),
+                  selected: viewModel.selectedIndex == 1,
+                  onTap: () => viewModel.onSelectedChanged(1),
+                ),
+                ListTile(
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      '예시북마크 1',
+                      style: viewModel.selectedIndex == 2
+                          ? const TextStyle(fontWeight: FontWeight.bold)
+                          : null,
+                    ),
+                  ),
+                  selected: viewModel.selectedIndex == 2,
+                  onTap: () {
+                    viewModel.onSelectedChanged(2);
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      "/",
+                      (route) => false,
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            // If not yet listening for speech start, otherwise stop
-            _speechToText.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
       ),
     );
   }
