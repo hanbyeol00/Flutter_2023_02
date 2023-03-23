@@ -18,7 +18,7 @@ flutter pub add flutter_html
 - `flutter pub add change_app_package_name`
 - `flutter pub run change_app_package_name:main com.han.naver`
 
-## android 설벙 확인 및 권한 부여
+## android 설정 확인 및 권한 부여
 
 - `/android/app/src/main/kotlin` 폴더에서 `MainActivity.kt` 파일을 열고  
   package 가 `com.han.naver` 로 변경되었는지 확인
