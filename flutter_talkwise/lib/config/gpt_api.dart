@@ -5,7 +5,13 @@ import 'dart:convert';
 class GPTAPI extends ChangeNotifier {
   String apiKey = '';
 
-  Future<Map<String, dynamic>> generateText(String prompt) async {
+  Future<Map<String, dynamic>> generateText(String question) async {
+    if (question.isEmpty) {
+      return {
+        'question': question,
+        'answer': '질문을 입력해주세요',
+      };
+    }
     const url =
         'https://api.openai.com/v1/engines/text-davinci-003/completions';
     final requestHeaders = {
@@ -13,20 +19,18 @@ class GPTAPI extends ChangeNotifier {
       'Authorization': 'Bearer $apiKey'
     };
     final requestBody = {
-      'prompt': prompt,
+      'prompt': question,
       'max_tokens': 200,
       'n': 1,
     };
-    print("작동됨 $prompt");
     final response = await http.post(Uri.parse(url),
         headers: requestHeaders, body: json.encode(requestBody));
     if (response.statusCode == 200) {
       final responseData = await json.decode(utf8.decode(response.bodyBytes));
-      final text = responseData['choices'][0]['text'];
-      print("값 도착 $text");
+      final answer = responseData['choices'][0]['text'];
       return {
-        'prompt': prompt,
-        'text': text,
+        'question': question,
+        'answer': answer,
       };
     } else {
       throw Exception('Failed to generate text');

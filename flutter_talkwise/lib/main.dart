@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_talkwise/modules/category_dto.dart';
+import 'package:flutter_talkwise/persistence/talkwise_db_service.dart';
 import 'package:flutter_talkwise/screen/Home.dart';
+import 'package:flutter_talkwise/screen/category_view.dart';
 import 'package:flutter_talkwise/ui_modles/Home_View_model.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     ChangeNotifierProvider(
       create: (_) => HomeViewModel(),
@@ -20,9 +24,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       initialRoute: "/",
-      routes: {
-        "/": (context) => const NavPage(body: Home()),
-        // "/category": (context) => const NavPage(body: ImagePage()),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/') {
+          return MaterialPageRoute(
+              builder: (context) => const NavPage(body: Home()));
+        } else if (settings.name != null &&
+            settings.name!.startsWith('/category/')) {
+          final bookmark = settings.name!.split('/').last;
+          return MaterialPageRoute(
+            builder: (context) =>
+                NavPage(body: CategoryView(bookmark: bookmark)),
+          );
+        }
+        return null;
       },
     );
   }
@@ -104,28 +118,56 @@ class _NavPageState extends State<NavPage> {
                     ),
                   ),
                   selected: viewModel.selectedIndex == 1,
-                  onTap: () => viewModel.onSelectedChanged(1),
-                ),
-                ListTile(
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      '예시북마크 1',
-                      style: viewModel.selectedIndex == 2
-                          ? const TextStyle(fontWeight: FontWeight.bold)
-                          : null,
-                    ),
-                  ),
-                  selected: viewModel.selectedIndex == 2,
                   onTap: () {
-                    viewModel.onSelectedChanged(2);
+                    viewModel.onSelectedChanged(1);
                     Navigator.pushNamedAndRemoveUntil(
                       context,
-                      "/",
+                      "/category/all",
                       (route) => false,
                     );
                   },
                 ),
+                FutureBuilder(
+                  future: TalkWiseDBService().getCategoryList(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<Category>> snapshot) {
+                    if (snapshot.data != null) {
+                      return ListTile(
+                        title: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            '예시북마크 1',
+                            style: viewModel.selectedIndex == 2
+                                ? const TextStyle(fontWeight: FontWeight.bold)
+                                : null,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return const Text("");
+                    }
+                  },
+                )
+                // ListTile(
+                //   title: Padding(
+                //     padding: const EdgeInsets.only(left: 10),
+                //     child: Text(
+                //       '예시북마크 1',
+                //       style: viewModel.selectedIndex == 2
+                //           ? const TextStyle(fontWeight: FontWeight.bold)
+                //           : null,
+                //     ),
+                //   ),
+                //   selected: viewModel.selectedIndex == 2,
+                //   onTap: () {
+                //     viewModel.onSelectedChanged(2);
+                //     Navigator.pushNamedAndRemoveUntil(
+                //       context,
+                //       "/category/bookmark",
+                //       (route) => false,
+                //     );
+                //   },
+                // ),
               ],
             ),
           ],

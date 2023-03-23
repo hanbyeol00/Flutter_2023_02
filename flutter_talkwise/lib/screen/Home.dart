@@ -43,13 +43,24 @@ class Home extends StatelessWidget {
                 future: viewModel.resultText,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    print(snapshot.data);
-                    return Text(
-                      snapshot.data.toString(),
-                      style: const TextStyle(fontSize: 16.0),
+                    final data = snapshot.data;
+                    final textValue = data!['answer'];
+                    return Column(
+                      children: [
+                        Text(
+                          textValue.toString(),
+                          style: const TextStyle(fontSize: 16.0),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            print(data);
+                          },
+                          child: const Text('카테고리에 저장하기'),
+                        )
+                      ],
                     );
-                  } else if (!snapshot.hasData) {
-                    return const Text("질문을 하면 답변이 출력됩니다");
+                  } else if (snapshot.hasError) {
+                    print(snapshot.error);
                   }
                   return const CircularProgressIndicator();
                 },
@@ -59,5 +70,19 @@ class Home extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }

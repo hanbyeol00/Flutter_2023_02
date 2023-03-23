@@ -10,24 +10,37 @@ class HomeViewModel with ChangeNotifier {
 
   int selectedIndex = 0;
 
+  // void onSelectedChanged(int index) {
+  //   selectedIndex = index;
+  //   notifyListeners();
+  // }
   void onSelectedChanged(int index) {
     selectedIndex = index;
     notifyListeners();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _initSpeech();
+  HomeViewModel() {
+    initSpeech();
+  }
+
+  // void initSpeech() async {
+  //   speechEnabled = await speechToText.initialize();
+  //   notifyListeners();
   // }
 
   void initSpeech() async {
-    speechEnabled = await speechToText.initialize();
+    speechEnabled = await speechToText.initialize(
+      onStatus: (val) => print('onStatus: $val'),
+      onError: (val) => print('onError: $val'),
+    );
     notifyListeners();
   }
 
   void startListening() async {
-    await speechToText.listen(onResult: onSpeechResult);
+    await speechToText.listen(
+      onResult: onSpeechResultAndSearch,
+      partialResults: false,
+    );
     notifyListeners();
   }
 
@@ -36,14 +49,13 @@ class HomeViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void onSpeechResult(SpeechRecognitionResult result) async {
+  void onSpeechResultAndSearch(SpeechRecognitionResult result) async {
     lastWords = result.recognizedWords;
     notifyListeners();
-    print(lastWords);
-    // searchHandler(_lastWords);
+    searchHandler(lastWords);
   }
 
-  Future<Map<String, dynamic>> resultText = GPTAPI().generateText("prompt");
+  Future<Map<String, dynamic>> resultText = GPTAPI().generateText("");
 
   void searchHandler(search) {
     Future<Map<String, dynamic>> searchSpeech = GPTAPI().generateText(search);

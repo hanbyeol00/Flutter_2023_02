@@ -91,4 +91,41 @@ class TalkWiseDBService {
       [id],
     );
   }
+
+  Future<List<Category>> getCategoryList() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> categoryMaps =
+        await db.query("tbl_category");
+
+    return List.generate(
+      categoryMaps.length,
+      (index) {
+        return Category(
+          id: categoryMaps[index]['id'],
+          qa_id: categoryMaps[index]['qa_id'],
+          category: categoryMaps[index]['category'],
+        );
+      },
+    );
+  }
+
+  Future<List<Category>> selectCategory(String category) async {
+    final db = await database;
+    final List<Map<String, dynamic>> res = await db.query(
+      'tbl_category',
+      where: 'category = ?',
+      whereArgs: [category],
+    );
+    return List.generate(
+      res.length,
+      (index) {
+        return Category(
+          id: res[index]['id'],
+          qa_id: res[index]['qa_id'],
+          category: res[index]['category'],
+        );
+      },
+    );
+  }
 }
