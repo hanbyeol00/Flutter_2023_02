@@ -17,7 +17,6 @@ class TalkWiseDBService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         question TEXT,
         answer TEXT,
-        category_id INTEGER,
       )
     ''');
     await db.execute('''
@@ -71,7 +70,6 @@ class TalkWiseDBService {
     final db = await database;
 
     final List<Map<String, dynamic>> qaMaps = await db.query("tbl_QA");
-
     return List.generate(
       qaMaps.length,
       (index) {
@@ -112,11 +110,15 @@ class TalkWiseDBService {
 
   Future<List<Category>> selectCategory(String category) async {
     final db = await database;
+
     final List<Map<String, dynamic>> res = await db.query(
       'tbl_category',
       where: 'category = ?',
       whereArgs: [category],
     );
+
+    print("object");
+    print(res);
     return List.generate(
       res.length,
       (index) {

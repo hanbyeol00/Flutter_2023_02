@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class GPTAPI extends ChangeNotifier {
-  String apiKey = '';
+  String apiKey = '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';
 
   Future<Map<String, dynamic>> generateText(String question) async {
     if (question.isEmpty) {
@@ -20,7 +20,7 @@ class GPTAPI extends ChangeNotifier {
     };
     final requestBody = {
       'prompt': question,
-      'max_tokens': 200,
+      'max_tokens': 2000,
       'n': 1,
     };
     final response = await http.post(Uri.parse(url),

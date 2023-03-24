@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_talkwise/modules/qa_dto.dart';
+import 'package:flutter_talkwise/persistence/talkwise_db_service.dart';
 import 'package:flutter_talkwise/ui_modles/Home_View_model.dart';
 import 'package:provider/provider.dart';
 
@@ -27,9 +29,12 @@ class Home extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(200, 70),
               ),
-              onPressed: viewModel.speechToText.isNotListening
-                  ? viewModel.startListening
-                  : viewModel.stopListening,
+              onPressed: () {
+                viewModel.onSpeechResultAndSearch("갈비찜 만드는 방법 알려줘");
+              },
+              // viewModel.speechToText.isNotListening
+              //     ? viewModel.startListening
+              //     : viewModel.stopListening,
               child: Icon(
                 viewModel.speechToText.isNotListening
                     ? Icons.mic_off
@@ -45,19 +50,27 @@ class Home extends StatelessWidget {
                   if (snapshot.hasData) {
                     final data = snapshot.data;
                     final textValue = data!['answer'];
-                    return Column(
-                      children: [
-                        Text(
-                          textValue.toString(),
-                          style: const TextStyle(fontSize: 16.0),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            print(data);
-                          },
-                          child: const Text('카테고리에 저장하기'),
-                        )
-                      ],
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          Text(
+                            textValue.toString(),
+                            style: const TextStyle(fontSize: 16.0),
+                          ),
+                          if (data['answer'] != "질문을 입력해주세요")
+                            TextButton(
+                              onPressed: () async {
+                                QA qa = QA(
+                                  question: data['question'],
+                                  answer: data['answer'],
+                                );
+                                await TalkWiseDBService().qaInsert(qa);
+                              },
+                              child: const Text('카테고리에 저장하기'),
+                            ),
+                        ],
+                      ),
                     );
                   } else if (snapshot.hasError) {
                     print(snapshot.error);

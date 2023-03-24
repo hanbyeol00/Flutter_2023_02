@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_talkwise/modules/qa_dto.dart';
 import 'package:flutter_talkwise/persistence/talkwise_db_service.dart';
@@ -28,35 +27,40 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: FutureBuilder(
-        future: widget.bookmark == "All"
-            ? TalkWiseDBService().qaSelectAll()
-            : TalkWiseDBService().selectCategory(widget.bookmark),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            if (widget.bookmark == "All") {
-              final data = snapshot.data as List<QA>;
-              return ListView.builder(
-                itemCount: data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(data[index].question),
-                    subtitle: Text(data[index].answer),
-                  );
-                },
-              );
-            } else {
-              final data = snapshot.data as List<Category>;
-              // ...
-              return const Text("data");
-            }
+    return FutureBuilder(
+      future: widget.bookmark == "all"
+          ? TalkWiseDBService().qaSelectAll()
+          : TalkWiseDBService().selectCategory(widget.bookmark),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          if (widget.bookmark == "all") {
+            final data = snapshot.data as List<QA>;
+            print(widget.bookmark);
+            return ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(data[index].question),
+                      subtitle: Text(data[index].answer),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ],
+                );
+              },
+            );
           } else {
-            return const Text("No data");
+            final data = snapshot.data as List<dynamic>;
+            // ...
+            return const Text("data");
           }
-        },
-      ),
+        } else {
+          return const Text("No data");
+        }
+      },
     );
   }
 }

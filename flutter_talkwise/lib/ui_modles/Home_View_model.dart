@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_talkwise/config/gpt_api.dart';
 
@@ -49,8 +48,8 @@ class HomeViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void onSpeechResultAndSearch(SpeechRecognitionResult result) async {
-    lastWords = result.recognizedWords;
+  void onSpeechResultAndSearch(result) async {
+    lastWords = result;
     notifyListeners();
     searchHandler(lastWords);
   }

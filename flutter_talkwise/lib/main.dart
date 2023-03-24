@@ -73,104 +73,104 @@ class _NavPageState extends State<NavPage> {
       ),
       body: widget.body,
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('북마크'),
-            ),
-            ListTile(
-              title: Text(
-                '질문하기',
-                style: viewModel.selectedIndex == 0
-                    ? const TextStyle(fontWeight: FontWeight.bold)
-                    : null,
-              ),
-              selected: viewModel.selectedIndex == 0,
-              onTap: () {
-                viewModel.onSelectedChanged(0);
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  "/",
-                  (route) => false,
-                );
-              },
-            ),
-            ExpansionTile(
-              title: Text(
-                '카테고리',
-                style: viewModel.selectedIndex >= 1
-                    ? const TextStyle(fontWeight: FontWeight.bold)
-                    : null,
-              ),
-              children: <Widget>[
-                ListTile(
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      'All',
-                      style: viewModel.selectedIndex == 1
-                          ? const TextStyle(fontWeight: FontWeight.bold)
-                          : null,
-                    ),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            children: <Widget>[
+              const SizedBox(
+                width: double.infinity,
+                child: DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
                   ),
-                  selected: viewModel.selectedIndex == 1,
-                  onTap: () {
-                    viewModel.onSelectedChanged(1);
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      "/category/all",
-                      (route) => false,
-                    );
-                  },
+                  child: Text('북마크'),
                 ),
-                FutureBuilder(
-                  future: TalkWiseDBService().getCategoryList(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Category>> snapshot) {
-                    if (snapshot.data != null) {
-                      return ListTile(
-                        title: Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Text(
-                            '예시북마크 1',
-                            style: viewModel.selectedIndex == 2
-                                ? const TextStyle(fontWeight: FontWeight.bold)
-                                : null,
-                          ),
-                        ),
+              ),
+              ListTile(
+                title: Text(
+                  '질문하기',
+                  style: viewModel.selectedIndex == 0
+                      ? const TextStyle(fontWeight: FontWeight.bold)
+                      : null,
+                ),
+                selected: viewModel.selectedIndex == 0,
+                onTap: () {
+                  viewModel.onSelectedChanged(0);
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    "/",
+                    (route) => false,
+                  );
+                },
+              ),
+              ExpansionTile(
+                title: Text(
+                  '카테고리',
+                  style: viewModel.selectedIndex >= 1
+                      ? const TextStyle(fontWeight: FontWeight.bold)
+                      : null,
+                ),
+                children: <Widget>[
+                  ListTile(
+                    title: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        'All',
+                        style: viewModel.selectedIndex == 1
+                            ? const TextStyle(fontWeight: FontWeight.bold)
+                            : null,
+                      ),
+                    ),
+                    selected: viewModel.selectedIndex == 1,
+                    onTap: () {
+                      viewModel.onSelectedChanged(1);
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        "/category/all",
+                        (route) => false,
                       );
-                    } else {
-                      return const Text("");
-                    }
-                  },
-                )
-                // ListTile(
-                //   title: Padding(
-                //     padding: const EdgeInsets.only(left: 10),
-                //     child: Text(
-                //       '예시북마크 1',
-                //       style: viewModel.selectedIndex == 2
-                //           ? const TextStyle(fontWeight: FontWeight.bold)
-                //           : null,
-                //     ),
-                //   ),
-                //   selected: viewModel.selectedIndex == 2,
-                //   onTap: () {
-                //     viewModel.onSelectedChanged(2);
-                //     Navigator.pushNamedAndRemoveUntil(
-                //       context,
-                //       "/category/bookmark",
-                //       (route) => false,
-                //     );
-                //   },
-                // ),
-              ],
-            ),
-          ],
+                    },
+                  ),
+                  FutureBuilder(
+                    future: TalkWiseDBService().getCategoryList(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Category>> snapshot) {
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: snapshot.data!.map((category) {
+                            final int index = snapshot.data!.indexOf(category);
+                            return ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: Text(
+                                  category.category,
+                                  style: viewModel.selectedIndex == index + 2
+                                      ? const TextStyle(
+                                          fontWeight: FontWeight.bold)
+                                      : null,
+                                ),
+                              ),
+                              selected: viewModel.selectedIndex == index + 2,
+                              onTap: () {
+                                viewModel.onSelectedChanged(index + 2);
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  "/category/${category.category}",
+                                  (route) => false,
+                                );
+                              },
+                            );
+                          }).toList(),
+                        );
+                      } else {
+                        return const Text("");
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
