@@ -35,7 +35,6 @@ class _CategoryPageState extends State<CategoryPage> {
         if (snapshot.hasData) {
           if (widget.bookmark == "all") {
             final data = snapshot.data as List<QA>;
-            print(widget.bookmark);
             return ListView.builder(
               itemCount: data.length,
               itemBuilder: (BuildContext context, int index) {
